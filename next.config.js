@@ -3,8 +3,7 @@ const nextConfig = {
   // Optimisations pour Vercel
   output: 'standalone',
   
-  // Optimisations de compilation
-  swcMinify: true,
+  // Optimisations de compilation (swcMinify est activé par défaut dans Next.js 16)
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
       exclude: ['error', 'warn'],
