@@ -1,5 +1,3 @@
-import { BetaAnalyticsDataClient } from '@google-analytics/data'
-import { google } from 'googleapis'
 import type { 
   KPIData, 
   GA4Event, 
@@ -11,35 +9,40 @@ import type {
   GA4Source 
 } from '@/types'
 
-// Initialize the client with proper OAuth2 authentication
-function getClient(accessToken: string) {
-  // Create an OAuth2Client using googleapis
-  const oauth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET
-  )
-  
-  // Set the credentials with the access token
-  oauth2Client.setCredentials({
-    access_token: accessToken,
-  })
-
-  return new BetaAnalyticsDataClient({
-    authClient: oauth2Client,
-  })
-}
+// Note: This file is currently unused - app/api/ga4/route.ts uses REST API directly
+// If you need to use these functions, they should be migrated to use REST API like route.ts
+// For now, keeping the structure but using REST API for compatibility
 
 const propertyId = process.env.GA4_PROPERTY_ID || 'properties/0'
+
+// Helper function to call GA4 REST API
+async function runGA4Report(accessToken: string, body: object) {
+  const propId = propertyId.replace('properties/', '')
+  const url = `https://analyticsdata.googleapis.com/v1beta/properties/${propId}:runReport`
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new Error(`GA4 API error: ${response.status} ${response.statusText} - ${errorText}`)
+  }
+
+  return response.json()
+}
 
 export async function getGA4Overview(
   accessToken: string,
   startDate: string,
   endDate: string
 ): Promise<KPIData[]> {
-  const client = getClient(accessToken)
-
-  const [response] = await client.runReport({
-    property: propertyId,
+  const response = await runGA4Report(accessToken, {
     dateRanges: [{ startDate, endDate }],
     metrics: [
       { name: 'sessions' },
@@ -91,10 +94,7 @@ export async function getCTAClicks(
   startDate: string,
   endDate: string
 ): Promise<number> {
-  const client = getClient(accessToken)
-
-  const [response] = await client.runReport({
-    property: propertyId,
+  const response = await runGA4Report(accessToken, {
     dateRanges: [{ startDate, endDate }],
     metrics: [{ name: 'eventCount' }],
     dimensionFilter: {
@@ -113,10 +113,7 @@ export async function getCalendlyScheduled(
   startDate: string,
   endDate: string
 ): Promise<number> {
-  const client = getClient(accessToken)
-
-  const [response] = await client.runReport({
-    property: propertyId,
+  const response = await runGA4Report(accessToken, {
     dateRanges: [{ startDate, endDate }],
     metrics: [{ name: 'eventCount' }],
     dimensionFilter: {
@@ -135,10 +132,7 @@ export async function getCTAByPosition(
   startDate: string,
   endDate: string
 ): Promise<CTAPosition[]> {
-  const client = getClient(accessToken)
-
-  const [response] = await client.runReport({
-    property: propertyId,
+  const response = await runGA4Report(accessToken, {
     dateRanges: [{ startDate, endDate }],
     dimensions: [{ name: 'customEvent:cta_location' }],
     metrics: [{ name: 'eventCount' }],
@@ -168,10 +162,7 @@ export async function getSectionViews(
   startDate: string,
   endDate: string
 ): Promise<SectionView[]> {
-  const client = getClient(accessToken)
-
-  const [response] = await client.runReport({
-    property: propertyId,
+  const response = await runGA4Report(accessToken, {
     dateRanges: [{ startDate, endDate }],
     dimensions: [{ name: 'customEvent:section_name' }],
     metrics: [{ name: 'eventCount' }],
@@ -195,10 +186,7 @@ export async function getScrollDepth(
   startDate: string,
   endDate: string
 ): Promise<ScrollDepth[]> {
-  const client = getClient(accessToken)
-
-  const [response] = await client.runReport({
-    property: propertyId,
+  const response = await runGA4Report(accessToken, {
     dateRanges: [{ startDate, endDate }],
     dimensions: [{ name: 'customEvent:scroll_threshold' }],
     metrics: [{ name: 'eventCount' }],
@@ -227,10 +215,7 @@ export async function getSourceMedium(
   startDate: string,
   endDate: string
 ): Promise<GA4Source[]> {
-  const client = getClient(accessToken)
-
-  const [response] = await client.runReport({
-    property: propertyId,
+  const response = await runGA4Report(accessToken, {
     dateRanges: [{ startDate, endDate }],
     dimensions: [
       { name: 'sessionSource' },
@@ -257,10 +242,7 @@ export async function getLandingPagePerformance(
   startDate: string,
   endDate: string
 ) {
-  const client = getClient(accessToken)
-
-  const [response] = await client.runReport({
-    property: propertyId,
+  const response = await runGA4Report(accessToken, {
     dateRanges: [{ startDate, endDate }],
     dimensions: [{ name: 'landingPage' }],
     metrics: [
