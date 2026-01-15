@@ -144,6 +144,65 @@ Nécessite un Developer Token validé (Basic ou Standard access).
 
 ---
 
+---
+
+## 🚀 Déploiement Vercel
+
+### Optimisations configurées
+
+Le projet est optimisé pour Vercel avec les configurations suivantes :
+
+#### Performance
+- **Standalone output** : Build optimisé pour Vercel
+- **SWC minification** : Compilation ultra-rapide
+- **Image optimization** : Formats AVIF/WebP avec cache
+- **Compression** : Gzip activé
+- **Cache headers** : Configuration optimale pour les assets statiques
+
+#### Sécurité
+- Headers de sécurité configurés (HSTS, X-Frame-Options, CSP, etc.)
+- Protection XSS et clickjacking
+- Referrer Policy configurée
+
+#### API Routes
+- Timeout configuré : 30 secondes max
+- Memory : 1024 MB pour les routes API
+- Cache stratégique : 60s pour les données API avec stale-while-revalidate
+
+#### Configuration Vercel
+
+Le fichier `vercel.json` contient :
+- Région : `cdg1` (Paris) pour une latence optimale
+- Headers de sécurité et cache
+- Configuration des fonctions serverless
+
+### Variables d'environnement requises
+
+Dans Vercel, configurez ces variables dans Settings → Environment Variables :
+
+```env
+NEXTAUTH_URL=https://votre-domaine.vercel.app
+NEXTAUTH_SECRET=votre-secret-nextauth
+GOOGLE_CLIENT_ID=votre-client-id
+GOOGLE_CLIENT_SECRET=votre-client-secret
+GA4_PROPERTY_ID=properties/XXXXXXXXX
+```
+
+### Déploiement
+
+1. Connectez votre repo GitHub à Vercel
+2. Vercel détectera automatiquement Next.js
+3. Configurez les variables d'environnement
+4. Le build se lancera automatiquement
+
+### Monitoring
+
+- Utilisez Vercel Analytics pour suivre les performances
+- Les logs sont disponibles dans le dashboard Vercel
+- Les erreurs sont automatiquement trackées
+
+---
+
 ## 📄 License
 
 MIT

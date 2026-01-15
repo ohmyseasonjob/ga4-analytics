@@ -5,6 +5,16 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'OhMySeason Dashboard',
   description: 'Analytics Dashboard for OhMySeason - Seasonal Recruitment Platform',
+  metadataBase: new URL(process.env.NEXTAUTH_URL || 'https://ohmyseason-dashboard.vercel.app'),
+  openGraph: {
+    title: 'OhMySeason Dashboard',
+    description: 'Analytics Dashboard for OhMySeason - Seasonal Recruitment Platform',
+    type: 'website',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function RootLayout({

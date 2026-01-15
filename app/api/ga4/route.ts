@@ -154,6 +154,11 @@ function generateCtaAnalysis(ctaPositions: Array<{ position: string; clicks: num
   ]
 }
 
+// Configuration de cache pour Vercel
+export const runtime = 'nodejs'
+export const maxDuration = 30
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
