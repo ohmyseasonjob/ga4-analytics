@@ -23,9 +23,7 @@ const nextConfig = {
   },
   
   // Packages externes pour réduire la taille du bundle
-  experimental: {
-    serverComponentsExternalPackages: ['googleapis', 'google-ads-api', '@google-analytics/data'],
-  },
+  serverExternalPackages: ['googleapis', 'google-ads-api', '@google-analytics/data'],
   
   // Headers de sécurité et performance
   async headers() {
@@ -80,10 +78,6 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
   
-  // Configuration ESLint
-  eslint: {
-    ignoreDuringBuilds: false,
-  },
 }
 
 module.exports = nextConfig

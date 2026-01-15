@@ -13,12 +13,21 @@ interface GoogleAdsMetrics {
   costPerConversion?: string
 }
 
+interface GoogleAdsKeywordData {
+  text?: string
+  matchType?: string
+}
+
+interface GoogleAdsQualityInfo {
+  qualityScore?: number
+}
+
 interface GoogleAdsResponse {
   results: Array<{
     campaign?: { name: string; id: string }
     adGroupCriterion?: {
-      keyword?: { text: string; matchType: string }
-      qualityInfo?: { qualityScore: number }
+      keyword?: GoogleAdsKeywordData
+      qualityInfo?: GoogleAdsQualityInfo
     }
     metrics?: GoogleAdsMetrics
     userList?: {
@@ -176,8 +185,8 @@ export async function getGoogleAdsKeywords(
 
   return response.results.map((row) => {
     const metrics: GoogleAdsMetrics = row.metrics || {}
-    const keyword = row.adGroupCriterion?.keyword || {}
-    const qualityInfo = row.adGroupCriterion?.qualityInfo || {}
+    const keyword: GoogleAdsKeywordData = row.adGroupCriterion?.keyword || {}
+    const qualityInfo: GoogleAdsQualityInfo = row.adGroupCriterion?.qualityInfo || {}
 
     return {
       keyword: keyword.text || 'Unknown',

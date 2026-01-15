@@ -53,7 +53,15 @@ export async function getMetaOverview(
     level: 'account',
   })
 
-  const data = insights.data[0] || {}
+  const data: {
+    spend?: string
+    impressions?: string
+    reach?: string
+    clicks?: string
+    cpc?: string
+    cpm?: string
+    ctr?: string
+  } = insights.data[0] || {}
 
   return [
     {
@@ -212,7 +220,7 @@ export async function getMetaPlacements(
   })
 
   const total = placements.data.reduce(
-    (sum, p) => sum + parseInt(p.impressions || '0'),
+    (sum: number, p) => sum + parseInt(p.impressions || '0'),
     0
   ) || 1
 
