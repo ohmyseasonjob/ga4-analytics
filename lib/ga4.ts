@@ -145,12 +145,12 @@ export async function getCTAByPosition(
     orderBys: [{ metric: { metricName: 'eventCount' }, desc: true }],
   })
 
-  const total = response.rows?.reduce(
-    (sum, row) => sum + parseInt(row.metricValues?.[0]?.value || '0'),
+  const total = (response.rows || []).reduce(
+    (sum: number, row: any) => sum + parseInt(row.metricValues?.[0]?.value || '0'),
     0
   ) || 1
 
-  return (response.rows || []).map((row) => ({
+  return (response.rows || []).map((row: any) => ({
     position: row.dimensionValues?.[0]?.value || 'unknown',
     clicks: parseInt(row.metricValues?.[0]?.value || '0'),
     percentage: (parseInt(row.metricValues?.[0]?.value || '0') / total) * 100,
@@ -175,7 +175,7 @@ export async function getSectionViews(
     orderBys: [{ metric: { metricName: 'eventCount' }, desc: true }],
   })
 
-  return (response.rows || []).map((row) => ({
+  return (response.rows || []).map((row: any) => ({
     section: row.dimensionValues?.[0]?.value || 'unknown',
     views: parseInt(row.metricValues?.[0]?.value || '0'),
   }))
@@ -198,12 +198,12 @@ export async function getScrollDepth(
     },
   })
 
-  const total = response.rows?.reduce(
-    (sum, row) => sum + parseInt(row.metricValues?.[0]?.value || '0'),
+  const total = (response.rows || []).reduce(
+    (sum: number, row: any) => sum + parseInt(row.metricValues?.[0]?.value || '0'),
     0
   ) || 1
 
-  return (response.rows || []).map((row) => ({
+  return (response.rows || []).map((row: any) => ({
     depth: `Scroll ${row.dimensionValues?.[0]?.value || '0'}%`,
     count: parseInt(row.metricValues?.[0]?.value || '0'),
     percentage: (parseInt(row.metricValues?.[0]?.value || '0') / total) * 100,
@@ -229,7 +229,7 @@ export async function getSourceMedium(
     limit: 10,
   })
 
-  return (response.rows || []).map((row) => ({
+  return (response.rows || []).map((row: any) => ({
     source: row.dimensionValues?.[0]?.value || '(direct)',
     medium: row.dimensionValues?.[1]?.value || '(none)',
     sessions: parseInt(row.metricValues?.[0]?.value || '0'),
@@ -261,7 +261,7 @@ export async function getLandingPagePerformance(
     orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
   })
 
-  return (response.rows || []).map((row) => {
+  return (response.rows || []).map((row: any) => {
     const sessions = parseInt(row.metricValues?.[0]?.value || '0')
     const events = parseInt(row.metricValues?.[1]?.value || '0')
     return {
