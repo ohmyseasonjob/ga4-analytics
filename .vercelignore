@@ -1,0 +1,13 @@
+# Fichiers à ignorer lors du déploiement Vercel
+node_modules
+.next
+.git
+.vercel
+.env*.local
+*.log
+.DS_Store
+coverage
+.vscode
+.idea
+*.md
+!README.md
