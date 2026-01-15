@@ -3,6 +3,16 @@ import type { GoogleAdsCampaign, GoogleAdsKeyword, KPIData } from '@/types'
 const CUSTOMER_ID = process.env.GOOGLE_ADS_CUSTOMER_ID || '0'
 const DEVELOPER_TOKEN = process.env.GOOGLE_ADS_DEVELOPER_TOKEN || ''
 
+interface GoogleAdsMetrics {
+  impressions?: string
+  clicks?: string
+  costMicros?: string
+  conversions?: string
+  ctr?: string
+  averageCpc?: string
+  costPerConversion?: string
+}
+
 interface GoogleAdsResponse {
   results: Array<{
     campaign?: { name: string; id: string }
@@ -10,14 +20,11 @@ interface GoogleAdsResponse {
       keyword?: { text: string; matchType: string }
       qualityInfo?: { qualityScore: number }
     }
-    metrics?: {
-      impressions: string
-      clicks: string
-      costMicros: string
-      conversions: string
-      ctr: string
-      averageCpc: string
-      costPerConversion: string
+    metrics?: GoogleAdsMetrics
+    userList?: {
+      name?: string
+      sizeForDisplay?: string
+      membershipLifeSpan?: number
     }
   }>
 }
@@ -64,7 +71,7 @@ export async function getGoogleAdsOverview(
   `
 
   const response = await googleAdsQuery(query, accessToken)
-  const metrics = response.results[0]?.metrics || {}
+  const metrics: GoogleAdsMetrics = response.results[0]?.metrics || {}
 
   const costMicros = parseInt(metrics.costMicros || '0')
   const cost = costMicros / 1000000
@@ -128,7 +135,7 @@ export async function getGoogleAdsCampaigns(
   const response = await googleAdsQuery(query, accessToken)
 
   return response.results.map((row) => {
-    const metrics = row.metrics || {}
+    const metrics: GoogleAdsMetrics = row.metrics || {}
     const costMicros = parseInt(metrics.costMicros || '0')
     
     return {
@@ -168,7 +175,7 @@ export async function getGoogleAdsKeywords(
   const response = await googleAdsQuery(query, accessToken)
 
   return response.results.map((row) => {
-    const metrics = row.metrics || {}
+    const metrics: GoogleAdsMetrics = row.metrics || {}
     const keyword = row.adGroupCriterion?.keyword || {}
     const qualityInfo = row.adGroupCriterion?.qualityInfo || {}
 
@@ -200,7 +207,7 @@ export async function getRemarketingAudience(
   try {
     const response = await googleAdsQuery(query, accessToken)
     
-    const totalSize = response.results.reduce((sum, row: any) => {
+    const totalSize = response.results.reduce((sum: number, row) => {
       return sum + parseInt(row.userList?.sizeForDisplay || '0')
     }, 0)
 
