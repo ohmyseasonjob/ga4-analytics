@@ -391,10 +391,10 @@ export async function GET(request: NextRequest) {
     let scrollDataSource = 'live'
     
     try {
-      // Use scroll_depth event with percent parameter (CORRECTED from percent_scrolled)
+      // Use scroll_depth event - try without dimension first since percent dimension may not be configured
+      // Count total scroll_depth events and use estimated distribution
       const scrollReport = await runGA4Report(accessToken, {
         dateRanges: [{ startDate: formatDate(startDate), endDate: formatDate(endDate) }],
-        dimensions: [{ name: 'customEvent:percent' }],
         metrics: [{ name: 'eventCount' }],
         dimensionFilter: {
           filter: {
@@ -402,39 +402,22 @@ export async function GET(request: NextRequest) {
             stringFilter: { value: 'scroll_depth' },
           },
         },
-        orderBys: [{ dimension: { dimensionName: 'customEvent:percent' }, desc: false }],
       })
 
       console.log('[GA4] Scroll raw:', JSON.stringify(scrollReport.rows?.slice(0, 5)))
 
-      const validRows = (scrollReport.rows || []).filter(
-        (row: any) => row.dimensionValues?.[0]?.value && row.dimensionValues[0].value !== '(not set)'
-      )
+      // Since we're not using dimensions, we get total event count
+      const totalScrollEvents = parseInt(scrollReport.rows?.[0]?.metricValues?.[0]?.value || '0')
 
-      if (validRows.length > 0) {
-        const totalScrollEvents = validRows.reduce(
-          (sum: number, row: any) => sum + parseInt(row.metricValues?.[0]?.value || '0'), 0
-        )
-
-        if (totalScrollEvents > 0) {
-          scrollDepth = validRows.map((row: any) => {
-            const users = parseInt(row.metricValues?.[0]?.value || '0')
-            const depth = row.dimensionValues?.[0]?.value || '0'
-            return {
-              depth: depth.includes('%') ? depth : `${depth}%`,
-              users,
-              percentage: `${Math.round((users / sessions) * 100)}%`,
-            }
-          })
-        } else {
-          scrollDataSource = 'fallback'
-          scrollDepth = [
-            { depth: '25%', users: Math.round(sessions * 0.86), percentage: '86%' },
-            { depth: '50%', users: Math.round(sessions * 0.70), percentage: '70%' },
-            { depth: '75%', users: Math.round(sessions * 0.43), percentage: '43%' },
-            { depth: '100%', users: Math.round(sessions * 0.24), percentage: '24%' },
-          ]
-        }
+      if (totalScrollEvents > 0) {
+        // Use estimated distribution based on typical scroll behavior
+        scrollDepth = [
+          { depth: '25%', users: Math.round(totalScrollEvents * 0.4), percentage: `${Math.round((totalScrollEvents * 0.4 / sessions) * 100)}%` },
+          { depth: '50%', users: Math.round(totalScrollEvents * 0.3), percentage: `${Math.round((totalScrollEvents * 0.3 / sessions) * 100)}%` },
+          { depth: '75%', users: Math.round(totalScrollEvents * 0.2), percentage: `${Math.round((totalScrollEvents * 0.2 / sessions) * 100)}%` },
+          { depth: '100%', users: Math.round(totalScrollEvents * 0.1), percentage: `${Math.round((totalScrollEvents * 0.1 / sessions) * 100)}%` },
+        ]
+        scrollDataSource = 'estimated'
       } else {
         scrollDataSource = 'fallback'
         scrollDepth = [
